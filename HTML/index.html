@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazy</title>
+    <script src="../JS/main.js" type="module" async></script>
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+
+<body>
+    <div class="container better">
+        <button class="open better display"></button>
+        <div class="popUp better hidden">
+            <button class="close better"></button>
+        </div>
+    </div>  
+
+    <div class="container settings">
+        <button class="settings open display"></button>
+        <div class="popUp settings hidden">
+            <button class="settings close"></button>
+            <div class="setting">
+                <button class="setting" type="button">Players setting</button>
+                <form class="popUp setting hidden">
+                    <input type="button" class="setting close"></button>
+                    <input type="button" class="setting add" name="add"></button>
+                    <div class="setting player">
+                        <input type="color" class="setting player color" name="player1">
+                        <input type="text" class="setting player name" name="player1" placeholder="player1">
+                        <input type="button" class="setting player remove" name="player1">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container leaderboard">
+        <button class="player leaderboard">
+            <span class="player leaderboard color"></span>
+            <p class="player leaderboard name"></p>
+            <p class="player leaderboard ammount"></p>
+        </button>
+    </div>
+</body>
+
+</html>
