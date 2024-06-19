@@ -1,7 +1,7 @@
 // parts
-// import { leaderboard } from "./leaderboard.js"
-// import { setting } from "./setting.js"
-// import { better } from "./better.js"
+import { leaderboard } from "./leaderboard.js"
+import { setting } from "./setting.js"
+import { better } from "./better.js"
 import { wheel } from "./wheel.js"
 import { Player } from "./players.js"
 
@@ -57,6 +57,11 @@ const BONUS_SETTING = {
         T_SPIN: 10,
         SPEED: {min: 65, max: 115},
         SIZE_POINTER: 25,
+        D_ANG: Math.PI/6,
+        WAIT: {
+            start: 1, // s
+            end: 4, // s
+        },
     },
 
     waiting_time: 2, // s
@@ -65,20 +70,17 @@ const BONUS_SETTING = {
 class App {
     constructor() {
         let start_player = new Player("Player1", START_AMMOUNT, "black", 0)
-        const {pachinco, cash_hunt, crazy_time} = bonus
+        const {pachinco, cash_hunt} = bonus
 
-        crazy_time.set(BONUS_SETTING.crazy_time.PARTS_LOADOUT, BONUS_SETTING.crazy_time.PARTS, BONUS_SETTING.crazy_time.RADIUS, 
-            BONUS_SETTING.crazy_time.COLORS, BONUS_SETTING.crazy_time.T_SPIN, BONUS_SETTING.crazy_time.SPEED, BONUS_SETTING.crazy_time.SIZE_POINTER)
-
-        listener.set_listener({name: "ArrowUp", func: crazy_time.attach})
-        // better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
-        // setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
-        // leaderboard.set(start_player)
-        // wheel.set(["coinFlip", "1", "coinFlip"], new Map([["coinFlip", 2]]), RADIUS, COLORS, 2, VEL, 200, BONUS_SETTING)
+        better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
+        setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
+        leaderboard.set(start_player)
+        // wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
+        wheel.t_set(["crazyTime", "1", "crazyTime"], new Map([["crazyTime", 2], ["1", 1]]), RADIUS, COLORS, 2, VEL, 200, BONUS_SETTING)
     }
 
     start() {
-        // wheel.start()
+        wheel.start()
     }
 
     add_player() {

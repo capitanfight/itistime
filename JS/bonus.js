@@ -1,9 +1,9 @@
-import { wheel, Wheel } from "./wheel.js"
 import { better } from "./better.js"
+import { wheel } from "./wheel.js"
 
 const COIN_COLORS = ["red", "blue"]
 
-function end(multiplier, id) {
+export function end(multiplier, id) {
     better.possible_bet[id + 4].value = multiplier
 
     wheel.announce_winner()
@@ -379,44 +379,8 @@ class CashHunt {
     detach() { }
 }
 
-class CrazyTime extends Wheel{
-    constructor() {
-        super(slices_loadout, slices, radius, colors, t_spin, speed, size_pointer)
-
-        this.isAttached = false
-    }
-
-    set() {
-        // this.wheel.set(slices_loadout, slices, radius, colors, t_spin, speed, size_pointer)
-    }
-
-    start() { }
-
-    attach = () => {
-        if (!this.isAttached) {
-            console.log("Log: attaching crazy time.")
-
-            this.isAttached = true
-            // document.body.appendChild(this.html_elements.container)
-
-            setTimeout(start, this.wait.start * 10e2)
-        }
-    }
-
-    detach = () => {
-        if (this.isAttached) {
-            console.log("Log: detaching crazy time.")
-
-            this.isAttached = false
-            this.wheel.start()
-            // document.body.removeChild(this.html_elements.container)
-        }
-    }
-}
-
 export const bonus = {
     coin_flip: CoinFlip,
     pachinco: new Pachinco(),
     cash_hunt: new CashHunt(),
-    crazy_time: new CrazyTime(),
 }
