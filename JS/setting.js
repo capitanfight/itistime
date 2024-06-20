@@ -115,6 +115,7 @@ class Setting {
         this.html_elements.content[idx].name.setAttribute("placeholder", `player${idx + 1}`)
 
         this.html_elements.content[idx].color.setAttribute("type", "color")
+        this.html_elements.content[idx].color.setAttribute("value", `#${Math.floor(Math.random()*16777215).toString(16)}`)
         this.html_elements.content[idx].color.setAttribute("id", `${idx + 1}`)
 
         this.html_elements.content[idx].remove.setAttribute("type", "button")

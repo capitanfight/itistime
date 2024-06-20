@@ -1,4 +1,5 @@
 import { leaderboard } from "./leaderboard.js"
+import { listener } from "./listener.js"
 
 let betting_player
 
@@ -19,6 +20,8 @@ class Better {
                 fishes: []
             }
         }
+
+        listener.set_listener({ name: "Space", func: this.close })
     }
 
     set(possible_bet, values, colors, maxes, fishes_ammount, player) {
@@ -65,7 +68,7 @@ class Better {
             this.html_elements.fish_selector.fishes.push(fish)
         })
 
-        this.prev_fish_selected = this.html_elements.fish_selector.fishes[1]
+        this.prev_fish_selected = this.html_elements.fish_selector.fishes[0]
 
         this.html_elements.fish_selector.container.appendChild(this.html_elements.fish_selector.btn)
         this.html_elements.fish_selector.container.appendChild(this.html_elements.fish_selector.popUp)
@@ -314,10 +317,25 @@ class Bet {
         // }
         console.log(`Log: paying bet for ${winner}.`)
 
-        this.players.forEach((p, idx) => {
-            p.ammount += (this.ammount[idx] * this.value) + this.ammount[idx]
-            leaderboard.update_player(p)
-        })
+        if (!isNaN(this.value)) {
+            this.players.forEach((p, idx) => {
+                p.ammount += (this.ammount[idx] * this.value) + this.ammount[idx]
+                leaderboard.update_player(p)
+            })
+        } else {
+            this.players.forEach((p, idx) => {
+                let value
+                this.value.forEach(e => {
+                    if (e.players.indexOf(p.id) != -1) {
+                        value = e.value
+                    }
+                })
+
+                p.ammount += (this.ammount[idx] * value) + this.ammount[idx]
+                
+                leaderboard.update_player(p)
+            })
+        }
     }
 }
 

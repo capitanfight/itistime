@@ -27,7 +27,7 @@ const VEL = {
 const SIZE_POINTER = 25 // px
 
 // fish
-const FISHES_AMMOUNT = [.1, 1, 10, 100, 1000]    
+const FISHES_AMMOUNT = [1, 5, 25, 100, 500, 1000]
 
 // settings
 const SETTINGS_NAMES = ["Player settings"]
@@ -50,16 +50,24 @@ const BONUS_SETTING = {
     pachinco: {},
     cash_hunt: {},
     crazy_time: {
-        PARTS_LOADOUT: ["x2", "x1", "x2", "x1", "x2", "x1", "x2", "x1"],
-        PARTS: new Map([["x1", 4], ["x2", 4]]),
+        PARTS_LOADOUT: ["x100", "x20", "x25", "x15", "double", "x25", "x35", "x25",
+            "double", "x20", "x15", "x25", "x50", "x15", "x35", "x15", "double", "x25",
+            "x50", "x20", "double", "x25", "x15", "x25", "double", "x20", "x35", "x25",
+            "x100", "x15", "x25", "x20", "double", "x25", "x35", "x20", "x50", "x25", 
+            "x20", "x15", "double", "x25", "x50", "x25", "double", "x15", "x25", "x20",
+            "x50", "x15", "x35", "x25", "double", "x20", "x25", "x15", "double", "x25",
+            "x50", "x20", "double", "x25", "x35", "x15"  
+        ],
+        PARTS: null,
         RADIUS: 350,
-        COLORS: new Map([["x1", "yellow"], ["x2", "red"]]),
+        COLORS: new Map([["x100", "pink"], ["x50", "lightblue"], ["x35", "darkgreen"], ["x25", "orange"], ["x20", "red"], ["x15", "purple"], ["double", "grey"]]),
         T_SPIN: 10,
         SPEED: {min: 65, max: 115},
+        POINTER_COLORS: ["green", "blue", "yellow"],
         SIZE_POINTER: 25,
         D_ANG: Math.PI/6,
         WAIT: {
-            start: 1, // s
+            start: 10, // s
             end: 4, // s
         },
     },
@@ -75,8 +83,8 @@ class App {
         better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
         setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
         leaderboard.set(start_player)
-        // wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
-        wheel.t_set(["crazyTime", "1", "crazyTime"], new Map([["crazyTime", 2], ["1", 1]]), RADIUS, COLORS, 2, VEL, 200, BONUS_SETTING)
+        wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
+        // wheel.t_set(["crazyTime", "1", "crazyTime"], new Map([["crazyTime", 2], ["1", 1]]), RADIUS, COLORS, 2, VEL, 200, BONUS_SETTING)
     }
 
     start() {

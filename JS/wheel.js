@@ -65,7 +65,12 @@ export class Wheel {
             p3: {
                 x: this.c.x + size_pointer,
                 y: this.c.y - radius - size_pointer
-            }
+            },
+            c: {
+                x: this.c.x,
+                y: this.c.y - radius,
+            },
+            isCenter: true,
         }
 
         this.create_pointer()
@@ -168,7 +173,7 @@ class Slice {
         this.dir = "o"
         if (isNaN(name)) {
             this.dir = "v"
-            this.isBonus = true
+            this.isBonus = (name.length == 1 || isNaN(name.slice(1)))
         }
     }
 
@@ -254,10 +259,10 @@ class MainWheel extends Wheel {
                         case "crazyTime":
                             bonus = new CrazyTime()
                             setTimeout(() => {
-                                let { SIZE_POINTER, SPEED, T_SPIN, COLORS, RADIUS, PARTS, PARTS_LOADOUT, D_ANG, WAIT } = this.bonus_setting.crazy_time
+                                let { SIZE_POINTER, SPEED, T_SPIN, COLORS, RADIUS, PARTS, PARTS_LOADOUT, D_ANG, WAIT, POINTER_COLORS } = this.bonus_setting.crazy_time
 
                                 bonus.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, SPEED, SIZE_POINTER, undefined, D_ANG)
-                                bonus.addWaitSetting(WAIT)
+                                bonus.addAdditionalSetting(WAIT, POINTER_COLORS)
                                 bonus.attach()
                             }, this.bonus_setting.waiting_time * 10e2)
 
@@ -284,11 +289,27 @@ class MainWheel extends Wheel {
     }
 }
 
+function get_elementIdx_by_id(elements, id, attribute_name) {
+    let idx = -1
+
+    elements.forEach((e, i) => {
+        if (e.getAttribute(attribute_name) == id) {
+            idx = i
+        }
+    })
+
+    return idx
+}
+
 class CrazyTime extends Wheel {
     constructor() {
         super()
 
         this.isAttached = false
+
+        this.chosen_pointer = [[], [], []]
+        this.current_player
+        this.bonus = [undefined, undefined, undefined]
     }
 
     set(slices_loadout, slices, radius, colors, t_spin, speed, size_pointer, bonus_setting, d_ang) {
@@ -299,33 +320,43 @@ class CrazyTime extends Wheel {
         let ang = Math.PI / 2 + d_ang
         this.pointer[0] = {
             p1: {
-                x: this.c.x + Math.cos(ang) * radius + Math.cos(ang) * size_pointer,
-                y: this.c.y + Math.sin(ang) * radius + Math.sin(ang) * size_pointer
+                x: this.c.x + (Math.cos(ang) * radius) - (Math.cos(ang) * size_pointer),
+                y: this.c.y - (Math.sin(ang) * radius) + (Math.sin(ang) * size_pointer)
             },
             p2: {
-                x: this.c.x + Math.cos(ang + Math.PI / 6) * radius + Math.cos(ang + Math.PI / 6) * size_pointer,
-                y: this.c.y + Math.sin(ang + Math.PI / 6) * radius + Math.sin(ang + Math.PI / 6) * size_pointer
+                x: this.c.x + (Math.cos(ang + Math.PI / 50) * radius) + (Math.cos(ang + Math.PI / 50) * size_pointer),
+                y: this.c.y - (Math.sin(ang + Math.PI / 50) * radius) - (Math.sin(ang + Math.PI / 50) * size_pointer)
             },
             p3: {
-                x: this.c.x + Math.cos(ang - Math.PI / 6) * radius + Math.cos(ang - Math.PI / 6) * size_pointer,
-                y: this.c.y + Math.sin(ang - Math.PI / 6) * radius + Math.sin(ang - Math.PI / 6) * size_pointer
-            }
+                x: this.c.x + (Math.cos(ang - Math.PI / 50) * radius) + (Math.cos(ang - Math.PI / 50) * size_pointer),
+                y: this.c.y - (Math.sin(ang - Math.PI / 50) * radius) - (Math.sin(ang - Math.PI / 50) * size_pointer)
+            },
+            c: {
+                x: this.c.x + (Math.cos(ang) * radius),
+                y: this.c.y - (Math.sin(ang) * radius),
+            },
+            isCenter: false,
         }
 
         ang = Math.PI / 2 - d_ang
         this.pointer[2] = {
             p1: {
-                x: this.c.x + Math.cos(ang) * radius + Math.cos(ang) * size_pointer,
-                y: this.c.y + Math.sin(ang) * radius + Math.sin(ang) * size_pointer
+                x: this.c.x + Math.cos(ang) * radius - Math.cos(ang) * size_pointer,
+                y: this.c.y - Math.sin(ang) * radius + Math.sin(ang) * size_pointer
             },
             p2: {
-                x: this.c.x + Math.cos(ang + Math.PI / 6) * radius + Math.cos(ang + Math.PI / 6) * size_pointer,
-                y: this.c.y + Math.sin(ang + Math.PI / 6) * radius + Math.sin(ang + Math.PI / 6) * size_pointer
+                x: this.c.x + (Math.cos(ang + Math.PI / 50)) * radius + (Math.cos(ang + Math.PI / 50)) * size_pointer,
+                y: this.c.y - (Math.sin(ang + Math.PI / 50)) * radius - (Math.sin(ang + Math.PI / 50)) * size_pointer
             },
             p3: {
-                x: this.c.x + Math.cos(ang - Math.PI / 6) * radius + Math.cos(ang - Math.PI / 6) * size_pointer,
-                y: this.c.y + Math.sin(ang - Math.PI / 6) * radius + Math.sin(ang - Math.PI / 6) * size_pointer
-            }
+                x: this.c.x + (Math.cos(ang - Math.PI / 50)) * radius + (Math.cos(ang - Math.PI / 50)) * size_pointer,
+                y: this.c.y - (Math.sin(ang - Math.PI / 50)) * radius - (Math.sin(ang - Math.PI / 50)) * size_pointer
+            },
+            c: {
+                x: this.c.x + (Math.cos(ang) * radius),
+                y: this.c.y - (Math.sin(ang) * radius),
+            },
+            isCenter: false,
         }
     }
 
@@ -333,35 +364,157 @@ class CrazyTime extends Wheel {
         if ('p1' in this.pointer) {
             canvas.draw_triangle("lightgreen", this.pointer.p1, this.pointer.p2, this.pointer.p3)
         } else {
-            this.pointer.forEach(pointer => {
-                canvas.draw_triangle("lightgreen", pointer.p1, pointer.p2, pointer.p3)
+            this.pointer.forEach((pointer, idx) => {
+                canvas.draw_triangle(this.pointer_colors[idx], pointer.p1, pointer.p2, pointer.p3)
             })
         }
     }
 
-    start = () => {
-        // this.spin()
+    add_choice() {
+        this.html_elements = {
+            container: document.createElement("div"),
+            choices: [undefined, undefined, undefined],
+            player_container: document.createElement("div"),
+            players: [],
+        }
+
+        this.html_elements.container.classList.add("container", "crazyTime")
+        this.html_elements.player_container.classList.add("player_container", "crazyTime")
+
+        this.html_elements.choices.forEach((e, idx) => {
+            e = document.createElement("button")
+
+            e.classList.add("element", "crazyTime")
+            e.setAttribute("n_pointer", idx)
+
+            e.style.backgroundColor = this.pointer_colors[idx]
+
+            e.onclick = this.choice
+
+            this.html_elements.container.appendChild(e)
+        })
+
+        for (let i = 0; i < better.possible_bet[7].players.length; i++) {
+            let e = document.createElement("button")
+
+            e.classList.add("player", "crazyTime")
+            e.style.backgroundColor = better.possible_bet[7].players[i].color
+
+            e.setAttribute("n_player", better.possible_bet[7].players[i].id)
+
+            e.onclick = this.select_player
+
+            this.html_elements.player_container.appendChild(e)
+            this.html_elements.players.push(e)
+        }
+
+        document.body.appendChild(this.html_elements.container)
+        document.body.appendChild(this.html_elements.player_container)
+
+        // setTimeout(this.choice, this.wait.start*10e2)
+        if (this.html_elements.players.length == 0) {
+            document.body.removeChild(this.html_elements.player_container)
+            this.spin()
+        }
     }
 
-    addWaitSetting(wait_time) {
+    remove_choice() {
+        document.body.removeChild(this.html_elements.container)
+    }
+
+    select_player = (e) => {
+        this.current_player = e.target.getAttribute("n_player")
+    }
+
+    choice = (e) => {
+        if (this.current_player == undefined) return
+
+        this.chosen_pointer[e.target.getAttribute("n_pointer")].push(this.current_player)
+
+        let idx = get_elementIdx_by_id(this.html_elements.players, this.current_player, "n_player")
+
+        this.html_elements.player_container.removeChild(this.html_elements.players[idx])
+        this.html_elements.players.splice(idx, 1)
+        this.current_player = undefined
+
+
+        if (this.html_elements.players.length == 0) {
+            document.body.removeChild(this.html_elements.player_container)
+            this.spin()
+        }
+    }
+
+    addAdditionalSetting(wait_time, pointer_colors) {
         this.wait = wait_time
+        this.pointer_colors = pointer_colors
     }
 
     check_sliecs() {
-        let bonus_value = -1
+        let bonus_values = [undefined, undefined, undefined]
+        let changePointer = { change: false, p: [] }
 
         this.slices_array.forEach((slice, id) => {
-            if (collide(this.pointer.p1, slice.p1, slice.p2)) {
-                let v = this.slices_loadout[id]
-                let b = v.slice(1)
-                bonus_value = Number(b)
-            }
+            this.pointer.forEach((pointer, idx) => {
+                if (collide(pointer.isCenter ? pointer.p1 : pointer.c, slice.p1, slice.p2)) {
+                    if (slice.isBonus) {
+                        if (this.chosen_pointer[idx].length !== 0) {
+                            changePointer.change = true
+                            changePointer.p.push(pointer)
+                        } else {
+                            bonus_values[idx] = null
+                        }
+                    } else {
+                        bonus_values[idx] = Number(this.slices_loadout[id].slice(1))
+                    }
+                }
+            })
         })
 
-        setInterval(() => {
-            this.detach()
-            end(bonus_value, 3)
-        }, this.wait.end * 10e2)
+        if (changePointer.change) {
+            this.pointer = changePointer.p
+            this.slices_array.forEach(slice => {
+                if (slice.isBonus) return
+                slice.name = `x${slice.name.slice(1) * 2}`
+            })
+
+            this.slices_loadout = this.slices_loadout.map(e => isNaN(e.slice(1)) ? e : `x${e.slice(1) * 2}`)
+
+            setTimeout(this.spin, this.wait.start * 10e2)
+        }
+
+        let j = 0
+        for (let i = 0; i < this.bonus.length; i++) {
+            if (this.bonus[i] === undefined) {
+                if (bonus_values[i] !== undefined) {
+                    this.bonus[i] = {
+                        value: bonus_values[i],
+                        players: this.chosen_pointer[i].map(e => Number(e))
+                    }
+                } else {
+                    this.bonus[i] = {
+                        value: undefined,
+                        players: this.chosen_pointer[i].map(e => Number(e))
+                    }
+                }
+            } else {
+                if (this.bonus[i].value === undefined) {
+                    this.bonus[i].value = bonus_values[j]
+                    j++
+                }
+            }
+        }
+
+        let canEnd = true
+        this.bonus.forEach(b => {
+            if (b.value == undefined) canEnd = false
+        })
+
+        if (canEnd) {
+            setTimeout(() => {
+                this.detach()
+                end(this.bonus, 3)
+            }, this.wait.end * 10e2)
+        }
     }
 
     attach = () => {
@@ -373,8 +526,7 @@ class CrazyTime extends Wheel {
             canvas.clear()
             this.createSlices()
             this.create_pointer()
-
-            setTimeout(this.start, this.wait.start * 10e2)
+            this.add_choice()
         }
     }
 
@@ -383,6 +535,8 @@ class CrazyTime extends Wheel {
             console.log("Log: detaching crazy time.")
 
             this.isAttached = false
+
+            this.remove_choice()
 
             canvas.clear()
             wheel.createSlices()
