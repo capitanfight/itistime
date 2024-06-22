@@ -6,7 +6,7 @@ function calc_dist_pToP(p1, p2) {
     return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2))
 }
 
-export class Canvas {
+class Canvas {
     constructor(w, h, master) {
         this.html_element = document.createElement("canvas")
         this.html_element.width = w
@@ -58,10 +58,20 @@ export class Canvas {
         this.ctx.stroke()
     }
 
+    draw_shape(points, color) {
+        this.ctx.beginPath()
+        points.forEach((p, idx) => {
+            if (idx === 0) this.ctx.moveTo(p.x, p.y)
+            else this.ctx.lineTo(p.x, p.y)
+        })
+        this.ctx.closePath()
+        this.ctx.fillStyle = color
+        this.ctx.fill()
+    }
 
-
-    draw_rectangle(color, p) {
-
+    draw_rectangle(color, p, s) {
+        this.ctx.fillStyle = color
+        this.ctx.fillRect(p.x, p.y, s.w, s.h)
     }
 
     draw_slice(color, v, p1, p2, ang, id, movedAngle) {
@@ -101,7 +111,7 @@ export class Canvas {
     }
 
     draw_text(p, color, text, ang, pos, font_size, has_background = false) {
-        let {x, y} = p
+        let { x, y } = p
 
         this.ctx.save();
         this.ctx.translate(x, y);
@@ -140,3 +150,5 @@ export class Canvas {
         // window.addEventListener("resize", this.resize)
     }
 }
+
+export const canvas = new Canvas(window.innerWidth, window.innerHeight, document.body)

@@ -1,5 +1,7 @@
 import { better } from "./better.js"
 import { wheel } from "./wheel.js"
+import { canvas } from "./utils/canvas.js"
+import { setting } from "./setting.js"
 
 const COIN_COLORS = ["red", "blue"]
 
@@ -327,7 +329,7 @@ class CoinFlip {
         this.#changeCoinColor(res)
 
         console.log(`result -> ${COIN_COLORS[res]}`)
-        
+
         setInterval(() => {
             this.detach()
             end(res == 1 ? this.m1_res : this.m2_res, 0)
@@ -355,16 +357,224 @@ class CoinFlip {
     }
 }
 
-class Pachinco {
-    constructor() { }
+class Pachinko {
+    constructor() {
+        canvas.start()
 
-    set() { }
+        this.isAttached = false
+        this.c = {
+            x: canvas.w / 2,
+            y: canvas.h / 2,
+        }
 
-    start() { }
+        this.stop = true
+    }
 
-    attach() { }
+    get_loadout(possible_multipliers) {
+        let arr = []
+        let {values, percentages, length} = possible_multipliers
 
-    detach() { }
+        for (let j = 0; j < length; j++) {
+            let n = Math.random() * 100, t = 0
+
+            for (let i = 0; i < values.length; i++) {
+                t += percentages[i]
+
+                if (n <= t) {
+                    arr.push(values[i])
+                    break
+                }
+            }
+        }
+
+        return arr
+    }
+
+    set(loadout, possible_multipliers, size, colors, zone, obstacles, ball) {
+        if (possible_multipliers == undefined) {
+            this.multipliers = {
+                strings: loadout,
+                values: loadout.map(e => isNaN(e.slice(1)) ? e : Number(e.slice(1))),
+            }
+        } else if (loadout == undefined) {
+            loadout = this.get_loadout(possible_multipliers)
+
+            this.multipliers = {
+                strings: loadout,
+                values: loadout.map(e => isNaN(e.slice(1)) ? e : Number(e.slice(1))),
+            }
+        } else {
+            throw new Error("define the precedence of the pachinko's loadout.")
+        }
+
+        this.size = {
+            w: size.width === -1 ? canvas.w : size.width,
+            h: size.height === -1 ? canvas.h : size.height,
+        }
+
+        this.top_left = {
+            x: this.c.x - this.size.w / 2,
+            y: this.c.y - this.size.h / 2
+        }
+
+        this.top_right = {
+            x: this.c.x + this.size.w / 2,
+            y: this.c.y - this.size.h / 2
+        }
+
+        this.bottom_left = {
+            x: this.c.x - this.size.w / 2,
+            y: this.c.y + this.size.h / 2
+        }
+
+        this.bottom_right = {
+            x: this.c.x + this.size.w / 2,
+            y: this.c.y + this.size.h / 2
+        }
+
+        let zone_h = zone.height === -1 ? this.size.h : zone.height
+
+        this.zone = {
+            pos: {
+                x: this.top_left.x,
+                y: this.c.y + this.size.h / 2 - zone.height,
+            },
+            size: {
+                w: zone.width === -1 ? this.size.w : zone.width,
+                h: zone_h,
+            },
+            splitters: {
+                w: zone.splitter.width,
+                h: zone.splitter.height === -1 ? zone_h : zone.splitter.height,
+            },
+        }
+
+        this.colors = colors
+
+        this.obstacles = {
+            setting: obstacles,
+            pos: [],
+            walls: [[this.top_left], [this.top_right]]
+        }
+
+        const { color, radius } = ball
+        this.ball = {
+            radius: radius,
+            color: color,
+            pos: undefined,
+            mass: 1,
+            v: 0,
+            a: 0,
+        }
+    }
+
+    draw_base() {
+        const { background, splitter, text } = this.colors
+
+        canvas.draw_rectangle(background, this.top_left, this.size)
+
+        canvas.draw_rectangle(splitter, this.zone.pos, this.zone.size)
+
+        this.zone_dim = (this.size.w - this.zone.splitters.w) / this.multipliers.strings.length
+        this.multipliers.strings.forEach((e, idx) => {
+            let x = this.top_left.x + this.zone_dim * idx + this.zone.splitters.w
+
+            canvas.draw_rectangle(background, { x: x, y: this.zone.pos.y }, { w: (this.zone_dim - this.zone.splitters.w), h: this.zone.size.h })
+            canvas.draw_text({ x: x - this.zone.splitters.w + this.zone_dim / 2, y: this.zone.pos.y + this.zone.size.h / 2 }, text, e, -Math.PI / 2, "left", 20, false)
+        })
+
+        const { vertical, horizontal, size, color } = this.obstacles.setting
+        const dY = (this.size.h - this.zone.size.h * 2) / vertical
+        let start = {
+            x: undefined,
+            y: this.top_left.y + dY,
+        }, max
+
+        for (let i = 0; i < vertical; i++) {
+            if (i % 2 == 0) {
+                max = horizontal.even
+                start.x = this.top_left.x + this.zone_dim + (this.zone_dim/2)
+            } else {
+                max = horizontal.odd
+                start.x = this.top_left.x + this.zone_dim
+            }
+            for (let j = 0; j < max; j++) {
+                let pos = {
+                    x: start.x + ((this.zone_dim ) * j), 
+                    y: start.y + dY * i
+                }
+                canvas.draw_circle(pos, size, color, false)
+
+                if (j == 0) this.obstacles.walls[0].push({x: pos.x - (this.zone_dim), y: pos.y})
+                if (j == max - 1) this.obstacles.walls[1].push({x: pos.x + (this.zone_dim), y: pos.y})
+
+                this.obstacles.pos.push(pos)
+            }
+        }
+
+        canvas.draw_shape(this.obstacles.walls[0], color)
+        canvas.draw_shape(this.obstacles.walls[1], color)
+    }
+
+    draw_ball() {
+        canvas.draw_circle(this.ball.pos, this.ball.radius, this.ball.color, false)
+    }
+
+    start = () => {
+        if (!this.stop) return
+        console.log("Log: starting pachinko.")
+        this.stop = false
+
+        const dY = (this.size.h - this.zone.size.h * 2) / this.obstacles.setting.vertical
+
+        this.ball.pos = {
+            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0))*this.zone_dim + this.zone_dim/2,
+            y: this.top_left.y + dY/2,
+        }
+        this.draw_ball()
+
+        this.#update()
+    }
+
+    #update = (t) => {
+        if (t === undefined) {
+            this.firstFrame = true
+            t = 0
+        } else {
+            if (this.firstFrame) {
+                this.start_t = t * 10e-4
+                this.firstFrame = false
+            }
+            t = (t * 10e-4) - this.start_t
+        }
+
+        // if (v <= 0) {
+        //     console.log("Log: stop pachinko.")
+        //     this.stop = true
+        // }
+        if (!this.stop) {
+            requestAnimationFrame(this.#update)
+        }
+    }
+
+    attach = () => {
+        if (!this.isAttached) {
+            console.log("Log: attaching pachinko.")
+
+            this.isAttached = true
+
+            canvas.clear()
+            this.draw_base()
+        }
+    }
+
+    detach = () => {
+        if (this.isAttached) {
+            console.log("Log: detaching pachinko.")
+
+            this.isAttached = false
+        }
+    }
 }
 
 class CashHunt {
@@ -381,6 +591,6 @@ class CashHunt {
 
 export const bonus = {
     coin_flip: CoinFlip,
-    pachinco: new Pachinco(),
+    pachinko: new Pachinko(),
     cash_hunt: new CashHunt(),
 }

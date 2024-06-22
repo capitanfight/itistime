@@ -1,12 +1,11 @@
-import { Canvas } from "./canvas.js"
-import { Listener } from "./listener.js"
+import { canvas } from "./utils/canvas.js"
+import { Listener } from "./utils/listener.js"
 import { better } from "./better.js"
 import { leaderboard } from "./leaderboard.js"
 import { bonus, end } from "./bonus.js"
 
 const listener = new Listener()
-const canvas = new Canvas(window.innerWidth, window.innerHeight, document.body)
-const NAMES = new Map([["crazyTime", "crazy time"], ["coinFlip", "coin flip"], ["cashHunt", "cash hunt"], ["pachinco", "pachinco"]])
+const NAMES = new Map([["crazyTime", "crazy time"], ["coinFlip", "coin flip"], ["cashHunt", "cash hunt"], ["pachinko", "pachinko"]])
 const { coin_flip } = bonus
 
 function collide(v, p1, p2) {
@@ -248,7 +247,7 @@ class MainWheel extends Wheel {
 
                             break
 
-                        case "pachinco":
+                        case "pachinko":
 
                             break
 
