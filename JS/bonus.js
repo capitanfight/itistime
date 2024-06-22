@@ -2,8 +2,10 @@ import { better } from "./better.js"
 import { wheel } from "./wheel.js"
 import { canvas } from "./utils/canvas.js"
 import { setting } from "./setting.js"
+import { detector } from "./utils/collisonDetector.js"
 
 const COIN_COLORS = ["red", "blue"]
+const gravitational_pull = 1
 
 export function end(multiplier, id) {
     better.possible_bet[id + 4].value = multiplier
@@ -372,7 +374,7 @@ class Pachinko {
 
     get_loadout(possible_multipliers) {
         let arr = []
-        let {values, percentages, length} = possible_multipliers
+        let { values, percentages, length } = possible_multipliers
 
         for (let j = 0; j < length; j++) {
             let n = Math.random() * 100, t = 0
@@ -453,22 +455,28 @@ class Pachinko {
 
         this.obstacles = {
             setting: obstacles,
-            pos: [],
+            spike: [],
             walls: [[this.top_left], [this.top_right]]
         }
 
         const { color, radius } = ball
         this.ball = {
-            radius: radius,
+            r: radius,
             color: color,
-            pos: undefined,
+            c: undefined,
             mass: 1,
-            v: 0,
-            a: 0,
+            v: {
+                x: 0,
+                y: 0
+            },
+            a: {
+                x: 0,
+                y: 0
+            },
         }
     }
 
-    draw_base() {
+    draw_base(firstRun = false) {
         const { background, splitter, text } = this.colors
 
         canvas.draw_rectangle(background, this.top_left, this.size)
@@ -490,26 +498,32 @@ class Pachinko {
             y: this.top_left.y + dY,
         }, max
 
-        for (let i = 0; i < vertical; i++) {
-            if (i % 2 == 0) {
-                max = horizontal.even
-                start.x = this.top_left.x + this.zone_dim + (this.zone_dim/2)
-            } else {
-                max = horizontal.odd
-                start.x = this.top_left.x + this.zone_dim
-            }
-            for (let j = 0; j < max; j++) {
-                let pos = {
-                    x: start.x + ((this.zone_dim ) * j), 
-                    y: start.y + dY * i
+        if (firstRun) {
+            for (let i = 0; i < vertical; i++) {
+                if (i % 2 == 0) {
+                    max = horizontal.even
+                    start.x = this.top_left.x + this.zone_dim + (this.zone_dim / 2)
+                } else {
+                    max = horizontal.odd
+                    start.x = this.top_left.x + this.zone_dim
                 }
-                canvas.draw_circle(pos, size, color, false)
+                for (let j = 0; j < max; j++) {
+                    let pos = {
+                        x: start.x + ((this.zone_dim) * j),
+                        y: start.y + dY * i
+                    }
+                    canvas.draw_circle(pos, size, color, false)
 
-                if (j == 0) this.obstacles.walls[0].push({x: pos.x - (this.zone_dim), y: pos.y})
-                if (j == max - 1) this.obstacles.walls[1].push({x: pos.x + (this.zone_dim), y: pos.y})
+                    if (j == 0) this.obstacles.walls[0].push({ x: pos.x - (this.zone_dim), y: pos.y })
+                    if (j == max - 1) this.obstacles.walls[1].push({ x: pos.x + (this.zone_dim), y: pos.y })
 
-                this.obstacles.pos.push(pos)
+                    this.obstacles.spike.push({c: pos, r: size})
+                }
             }
+        } else {
+            this.obstacles.spike.forEach(spike => {
+                canvas.draw_circle(spike.c, size, color, false)
+            })
         }
 
         canvas.draw_shape(this.obstacles.walls[0], color)
@@ -517,7 +531,7 @@ class Pachinko {
     }
 
     draw_ball() {
-        canvas.draw_circle(this.ball.pos, this.ball.radius, this.ball.color, false)
+        canvas.draw_circle(this.ball.c, this.ball.radius, this.ball.color, false)
     }
 
     start = () => {
@@ -527,10 +541,13 @@ class Pachinko {
 
         const dY = (this.size.h - this.zone.size.h * 2) / this.obstacles.setting.vertical
 
-        this.ball.pos = {
-            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0))*this.zone_dim + this.zone_dim/2,
-            y: this.top_left.y + dY/2,
+        this.ball.c = {
+            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0)) * this.zone_dim + this.zone_dim / 2,
+            y: this.top_left.y + dY / 2,
         }
+        this.last_time = 0
+        this.ball.a.y = gravitational_pull / this.ball.mass
+
         this.draw_ball()
 
         this.#update()
@@ -546,6 +563,35 @@ class Pachinko {
                 this.firstFrame = false
             }
             t = (t * 10e-4) - this.start_t
+        }
+        let dt = t - this.last_time
+        this.last_time = t
+
+        this.ball.v.x = this.ball.a.x * dt
+        this.ball.v.y = this.ball.a.y * dt
+
+        this.ball.c.x = this.ball.v.x * dt
+        this.ball.c.y = this.ball.v.y * dt
+
+        this.obstacles.spike.forEach(spike => {
+            let required_movement = detector.detect_collision(this.ball, spike)
+
+            if (required_movement != null) {
+                this.ball.c.x += required_movement.x
+                this.ball.c.y += required_movement.x
+            }
+        })
+        for (let i = 0; i < this.obstacles.walls[0].length - 1; i+=2) {
+            let required_movement = detector.detect_collision(this.ball, [this.obstacles.walls[0][i], this.obstacles.walls[0][i + 1], this.obstacles.walls[0][i + 2]])
+            if (required_movement != null) {
+                this.ball.c.x += required_movement.x
+                this.ball.c.y += required_movement.x
+            }
+            required_movement = detector.detect_collision(this.ball, [this.obstacles.walls[1][i], this.obstacles.walls[1][i + 1], this.obstacles.walls[1][i + 2]])
+            if (required_movement != null) {
+                this.ball.c.x += required_movement.x
+                this.ball.c.y += required_movement.x
+            }
         }
 
         // if (v <= 0) {
@@ -564,7 +610,7 @@ class Pachinko {
             this.isAttached = true
 
             canvas.clear()
-            this.draw_base()
+            this.draw_base(true)
         }
     }
 
