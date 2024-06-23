@@ -66,6 +66,10 @@ const BONUS_SETTING = {
             color: "white",
             radius: 7, //px
         },
+        GRID_SUBDIVISION: {
+            v: 1,
+            h: 1,
+        }
     },
     cash_hunt: {},
     crazy_time: {
@@ -100,7 +104,7 @@ class App {
         const { pachinko, cash_hunt } = bonus
 
         pachinko.set(BONUS_SETTING.pachinko.LOADOUT, BONUS_SETTING.pachinko.POSSIBLE_MULTIPLIER, BONUS_SETTING.pachinko.SIZE, BONUS_SETTING.pachinko.COLORS, BONUS_SETTING.pachinko.ZONE, 
-            BONUS_SETTING.pachinko.OBSTACLES, BONUS_SETTING.pachinko.BALL)
+            BONUS_SETTING.pachinko.OBSTACLES, BONUS_SETTING.pachinko.BALL, BONUS_SETTING.pachinko.GRID_SUBDIVISION)
         pachinko.attach()
 
         listener.set_listener({ name: "ArrowUp", func: pachinko.start })

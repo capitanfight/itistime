@@ -5,7 +5,7 @@ import { setting } from "./setting.js"
 import { detector } from "./utils/collisonDetector.js"
 
 const COIN_COLORS = ["red", "blue"]
-const gravitational_pull = 1
+const gravitational_pull = 9
 
 export function end(multiplier, id) {
     better.possible_bet[id + 4].value = multiplier
@@ -392,7 +392,7 @@ class Pachinko {
         return arr
     }
 
-    set(loadout, possible_multipliers, size, colors, zone, obstacles, ball) {
+    set(loadout, possible_multipliers, size, colors, zone, obstacles, ball, partition_setting) {
         if (possible_multipliers == undefined) {
             this.multipliers = {
                 strings: loadout,
@@ -459,6 +459,13 @@ class Pachinko {
             walls: [[this.top_left], [this.top_right]]
         }
 
+        for (let i = 0; i < partition_setting.v; i++) {
+            this.obstacles.spike.push([])
+            for (let j = 0; j < partition_setting.h; j++) {
+                this.obstacles.spike[i].push([])
+            }
+        }
+
         const { color, radius } = ball
         this.ball = {
             r: radius,
@@ -473,6 +480,11 @@ class Pachinko {
                 x: 0,
                 y: 0
             },
+        }
+
+        this.partition = {
+            h: (this.top_right.x - this.top_left.x) / partition_setting.h,
+            v: (this.bottom_left.y - this.top_left.y) / partition_setting.v,
         }
     }
 
@@ -498,6 +510,7 @@ class Pachinko {
             y: this.top_left.y + dY,
         }, max
 
+
         if (firstRun) {
             for (let i = 0; i < vertical; i++) {
                 if (i % 2 == 0) {
@@ -517,12 +530,17 @@ class Pachinko {
                     if (j == 0) this.obstacles.walls[0].push({ x: pos.x - (this.zone_dim), y: pos.y })
                     if (j == max - 1) this.obstacles.walls[1].push({ x: pos.x + (this.zone_dim), y: pos.y })
 
-                    this.obstacles.spike.push({c: pos, r: size})
+                    let y = Math.floor((pos.y - this.top_left.y) / this.partition.v)
+                    let x = Math.floor((pos.x - this.top_left.x) / this.partition.h)
+
+                    this.obstacles.spike[y][x].push({ c: pos, r: size })
                 }
             }
         } else {
-            this.obstacles.spike.forEach(spike => {
-                canvas.draw_circle(spike.c, size, color, false)
+            this.obstacles.spike[0].forEach(arr => {
+                arr.forEach(spike => {
+                    canvas.draw_circle(spike.c, size, color, false)
+                })
             })
         }
 
@@ -531,7 +549,7 @@ class Pachinko {
     }
 
     draw_ball() {
-        canvas.draw_circle(this.ball.c, this.ball.radius, this.ball.color, false)
+        canvas.draw_circle(this.ball.c, this.ball.r, this.ball.color, false)
     }
 
     start = () => {
@@ -567,21 +585,31 @@ class Pachinko {
         let dt = t - this.last_time
         this.last_time = t
 
-        this.ball.v.x = this.ball.a.x * dt
-        this.ball.v.y = this.ball.a.y * dt
+        this.ball.v.x += this.ball.a.x * dt
+        this.ball.v.y += this.ball.a.y * dt
 
-        this.ball.c.x = this.ball.v.x * dt
-        this.ball.c.y = this.ball.v.y * dt
+        this.ball.c.x += this.ball.v.x * dt
+        this.ball.c.y += this.ball.v.y * dt
 
-        this.obstacles.spike.forEach(spike => {
+        let y = Math.floor((this.ball.c.y - this.top_left.y) / this.partition.v)
+        let x = Math.floor((this.ball.c.x - this.top_left.x) / this.partition.h)
+
+        this.obstacles.spike[y][x].forEach(spike => {
             let required_movement = detector.detect_collision(this.ball, spike)
 
             if (required_movement != null) {
                 this.ball.c.x += required_movement.x
                 this.ball.c.y += required_movement.x
+
+                this.ball.a.x *= -1
+                this.ball.a.y *= -1
+
+                this.ball.v.x = 0
+                this.ball.v.y = 0
             }
         })
-        for (let i = 0; i < this.obstacles.walls[0].length - 1; i+=2) {
+
+        for (let i = 0; i < this.obstacles.walls[0].length - 1; i += 2) {
             let required_movement = detector.detect_collision(this.ball, [this.obstacles.walls[0][i], this.obstacles.walls[0][i + 1], this.obstacles.walls[0][i + 2]])
             if (required_movement != null) {
                 this.ball.c.x += required_movement.x
@@ -593,6 +621,10 @@ class Pachinko {
                 this.ball.c.y += required_movement.x
             }
         }
+
+        canvas.clear()
+        this.draw_base()
+        this.draw_ball()
 
         // if (v <= 0) {
         //     console.log("Log: stop pachinko.")
