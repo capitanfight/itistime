@@ -1,7 +1,7 @@
 // parts
-// import { leaderboard } from "./leaderboard.js"
-// import { setting } from "./setting.js"
-// import { better } from "./better.js"
+import { leaderboard } from "./leaderboard.js"
+import { setting } from "./setting.js"
+import { better } from "./better.js"
 import { wheel } from "./wheel.js"
 import { Player } from "./players.js"
 
@@ -64,12 +64,17 @@ const BONUS_SETTING = {
         },
         BALL: {
             color: "white",
-            radius: 7, //px
+            radius: 7, // px
         },
         GRID_SUBDIVISION: {
-            v: 1,
-            h: 1,
-        }
+            v: 15,
+            h: 10,
+        },
+        RANDOMIZER: 5, // px
+        WAIT: {
+            start: 3, // s
+            end: 4, // s
+        },
     },
     cash_hunt: {},
     crazy_time: {
@@ -101,21 +106,22 @@ const BONUS_SETTING = {
 class App {
     constructor() {
         let start_player = new Player("Player1", START_AMMOUNT, "black", 0)
-        const { pachinko, cash_hunt } = bonus
+        const { cash_hunt } = bonus
 
-        pachinko.set(BONUS_SETTING.pachinko.LOADOUT, BONUS_SETTING.pachinko.POSSIBLE_MULTIPLIER, BONUS_SETTING.pachinko.SIZE, BONUS_SETTING.pachinko.COLORS, BONUS_SETTING.pachinko.ZONE, 
-            BONUS_SETTING.pachinko.OBSTACLES, BONUS_SETTING.pachinko.BALL, BONUS_SETTING.pachinko.GRID_SUBDIVISION)
-        pachinko.attach()
+        // pachinko.set(BONUS_SETTING.pachinko.LOADOUT, BONUS_SETTING.pachinko.POSSIBLE_MULTIPLIER, BONUS_SETTING.pachinko.SIZE, BONUS_SETTING.pachinko.COLORS, BONUS_SETTING.pachinko.ZONE, 
+        //     BONUS_SETTING.pachinko.OBSTACLES, BONUS_SETTING.pachinko.BALL, BONUS_SETTING.pachinko.GRID_SUBDIVISION, BONUS_SETTING.pachinko.RANDOMIZER)
+        // pachinko.attach()
 
-        listener.set_listener({ name: "ArrowUp", func: pachinko.start })
-        // better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
-        // setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
-        // leaderboard.set(start_player)
-        // wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
+        // listener.set_listener({ name: "ArrowUp", func: pachinko.start })
+        // wheel.set(["pachinko", "pachinko", "pachinko"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
+        better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
+        setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
+        leaderboard.set(start_player)
+        wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
     }
 
     start() {
-        // wheel.start()
+        wheel.start()
     }
 
     add_player() {

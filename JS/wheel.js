@@ -6,7 +6,7 @@ import { bonus, end } from "./bonus.js"
 
 const listener = new Listener()
 const NAMES = new Map([["crazyTime", "crazy time"], ["coinFlip", "coin flip"], ["cashHunt", "cash hunt"], ["pachinko", "pachinko"]])
-const { coin_flip } = bonus
+const { coin_flip, pachinko } = bonus
 
 function collide(v, p1, p2) {
     if (p1.x <= v.x && v.x <= p2.x &&
@@ -33,6 +33,7 @@ export class Wheel {
         this.stop = true
 
         this.slices_array = []
+        this.blockSpin = false
     }
 
     t_set(slices_loadout, slices, radius, colors, t_spin, speed, size_pointer, bonus_setting) {
@@ -105,9 +106,11 @@ export class Wheel {
     }
 
     spin = () => {
-        if (!this.stop) {
+        if (!this.stop || this.blockSpin) {
             return
         }
+
+        this.blockSpin = true
 
         console.log("Log: Start spin")
 
@@ -248,6 +251,13 @@ class MainWheel extends Wheel {
                             break
 
                         case "pachinko":
+                            bonus = new pachinko()
+                            setTimeout(() => {
+                                let { LOADOUT, POSSIBLE_MULTIPLIER, SIZE, COLORS, ZONE, OBSTACLES, BALL, GRID_SUBDIVISION, RANDOMIZER, WAIT } = this.bonus_setting.pachinko
+
+                                bonus.set(LOADOUT, POSSIBLE_MULTIPLIER, SIZE, COLORS, ZONE, OBSTACLES, BALL, GRID_SUBDIVISION, RANDOMIZER, WAIT)
+                                bonus.attach()
+                            }, this.bonus_setting.waiting_time * 10e2)
 
                             break
 
@@ -281,6 +291,8 @@ class MainWheel extends Wheel {
     }
 
     announce_winner() {
+        this.blockSpin = false
+
         let winner = this.slices_loadout[this.winner]
         console.log(winner)
 
@@ -451,6 +463,7 @@ class CrazyTime extends Wheel {
     check_sliecs() {
         let bonus_values = [undefined, undefined, undefined]
         let changePointer = { change: false, p: [] }
+        this.blockSpin = false
 
         this.slices_array.forEach((slice, id) => {
             this.pointer.forEach((pointer, idx) => {

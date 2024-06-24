@@ -3,9 +3,10 @@ import { wheel } from "./wheel.js"
 import { canvas } from "./utils/canvas.js"
 import { setting } from "./setting.js"
 import { detector } from "./utils/collisonDetector.js"
+import { Vector, vectorMath } from "./utils/vector.js"
 
 const COIN_COLORS = ["red", "blue"]
-const gravitational_pull = 9
+const gravitational_pull = new Vector({ x: 0, y: 20 })
 
 export function end(multiplier, id) {
     better.possible_bet[id + 4].value = multiplier
@@ -372,7 +373,7 @@ class Pachinko {
         this.stop = true
     }
 
-    get_loadout(possible_multipliers) {
+    #get_loadout(possible_multipliers) {
         let arr = []
         let { values, percentages, length } = possible_multipliers
 
@@ -392,14 +393,14 @@ class Pachinko {
         return arr
     }
 
-    set(loadout, possible_multipliers, size, colors, zone, obstacles, ball, partition_setting) {
+    set(loadout, possible_multipliers, size, colors, zone, obstacles, ball, partition_setting, randomizer, waiting_time) {
         if (possible_multipliers == undefined) {
             this.multipliers = {
                 strings: loadout,
                 values: loadout.map(e => isNaN(e.slice(1)) ? e : Number(e.slice(1))),
             }
         } else if (loadout == undefined) {
-            loadout = this.get_loadout(possible_multipliers)
+            loadout = this.#get_loadout(possible_multipliers)
 
             this.multipliers = {
                 strings: loadout,
@@ -470,25 +471,22 @@ class Pachinko {
         this.ball = {
             r: radius,
             color: color,
-            c: undefined,
+            c: new Vector({ x: 0, y: 0 }),
             mass: 1,
-            v: {
-                x: 0,
-                y: 0
-            },
-            a: {
-                x: 0,
-                y: 0
-            },
+            v: new Vector({ x: 0, y: 0 }),
+            a: gravitational_pull
         }
 
         this.partition = {
             h: (this.top_right.x - this.top_left.x) / partition_setting.h,
             v: (this.bottom_left.y - this.top_left.y) / partition_setting.v,
         }
+
+        this.randomizer = randomizer
+        this.waiting_time = waiting_time
     }
 
-    draw_base(firstRun = false) {
+    #draw_base(firstRun = false) {
         const { background, splitter, text } = this.colors
 
         canvas.draw_rectangle(background, this.top_left, this.size)
@@ -530,16 +528,27 @@ class Pachinko {
                     if (j == 0) this.obstacles.walls[0].push({ x: pos.x - (this.zone_dim), y: pos.y })
                     if (j == max - 1) this.obstacles.walls[1].push({ x: pos.x + (this.zone_dim), y: pos.y })
 
-                    let y = Math.floor((pos.y - this.top_left.y) / this.partition.v)
-                    let x = Math.floor((pos.x - this.top_left.x) / this.partition.h)
+                    let vertices = [
+                        [Math.floor((pos.y + size - this.top_left.y) / this.partition.v), Math.floor((pos.y - size - this.top_left.y) / this.partition.v)],
+                        [Math.floor((pos.x + size - this.top_left.x) / this.partition.h), Math.floor((pos.x - size - this.top_left.x) / this.partition.h)],
+                    ]
 
-                    this.obstacles.spike[y][x].push({ c: pos, r: size })
+                    if (vertices[0][0] == vertices[0][1]) vertices[0].pop()
+                    if (vertices[1][0] == vertices[1][1]) vertices[1].pop()
+
+                    vertices[0].forEach(y => {
+                        vertices[1].forEach(x => {
+                            this.obstacles.spike[y][x].push({ c: pos, r: size })
+                        })
+                    })
                 }
             }
         } else {
-            this.obstacles.spike[0].forEach(arr => {
-                arr.forEach(spike => {
-                    canvas.draw_circle(spike.c, size, color, false)
+            this.obstacles.spike.forEach(mtx => {
+                mtx.forEach(arr => {
+                    arr.forEach(spike => {
+                        canvas.draw_circle(spike.c, size, color, false)
+                    })
                 })
             })
         }
@@ -548,25 +557,26 @@ class Pachinko {
         canvas.draw_shape(this.obstacles.walls[1], color)
     }
 
-    draw_ball() {
+    #draw_ball() {
         canvas.draw_circle(this.ball.c, this.ball.r, this.ball.color, false)
     }
 
-    start = () => {
+    #start = () => {
         if (!this.stop) return
         console.log("Log: starting pachinko.")
         this.stop = false
 
         const dY = (this.size.h - this.zone.size.h * 2) / this.obstacles.setting.vertical
 
-        this.ball.c = {
-            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0)) * this.zone_dim + this.zone_dim / 2,
+        this.ball.c = new Vector({
+            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0)) * this.zone_dim + this.zone_dim / 2 + Number((Math.random() * (this.randomizer*2) - this.randomizer)),
             y: this.top_left.y + dY / 2,
-        }
-        this.last_time = 0
-        this.ball.a.y = gravitational_pull / this.ball.mass
+        })
+        this.ball.v = new Vector({x: 0, y: 0})
 
-        this.draw_ball()
+        this.last_time = 0
+
+        this.#draw_ball()
 
         this.#update()
     }
@@ -585,11 +595,11 @@ class Pachinko {
         let dt = t - this.last_time
         this.last_time = t
 
-        this.ball.v.x += this.ball.a.x * dt
-        this.ball.v.y += this.ball.a.y * dt
+        this.ball.v.x += this.ball.a.x * (dt * 5)
+        this.ball.v.y += this.ball.a.y * (dt * 5)
 
-        this.ball.c.x += this.ball.v.x * dt
-        this.ball.c.y += this.ball.v.y * dt
+        this.ball.c.x += this.ball.v.x * (dt * 5)
+        this.ball.c.y += this.ball.v.y * (dt * 5)
 
         let y = Math.floor((this.ball.c.y - this.top_left.y) / this.partition.v)
         let x = Math.floor((this.ball.c.x - this.top_left.x) / this.partition.h)
@@ -598,41 +608,61 @@ class Pachinko {
             let required_movement = detector.detect_collision(this.ball, spike)
 
             if (required_movement != null) {
-                this.ball.c.x += required_movement.x
-                this.ball.c.y += required_movement.x
-
-                this.ball.a.x *= -1
-                this.ball.a.y *= -1
-
-                this.ball.v.x = 0
-                this.ball.v.y = 0
+                this.ball.c = vectorMath.add(this.ball.c, required_movement)
+                this.ball.v = vectorMath.scale(required_movement.noramlize(), gravitational_pull.y)
             }
         })
 
         for (let i = 0; i < this.obstacles.walls[0].length - 1; i += 2) {
             let required_movement = detector.detect_collision(this.ball, [this.obstacles.walls[0][i], this.obstacles.walls[0][i + 1], this.obstacles.walls[0][i + 2]])
             if (required_movement != null) {
-                this.ball.c.x += required_movement.x
-                this.ball.c.y += required_movement.x
-            }
-            required_movement = detector.detect_collision(this.ball, [this.obstacles.walls[1][i], this.obstacles.walls[1][i + 1], this.obstacles.walls[1][i + 2]])
-            if (required_movement != null) {
-                this.ball.c.x += required_movement.x
-                this.ball.c.y += required_movement.x
+                this.ball.c = vectorMath.add(this.ball.c, required_movement)
+                this.ball.v = vectorMath.scale(required_movement.noramlize(), gravitational_pull.y)
+            } else {
+                required_movement = detector.detect_collision(this.ball, [this.obstacles.walls[1][i], this.obstacles.walls[1][i + 2], this.obstacles.walls[1][i + 1]])
+                if (required_movement != null) {
+                    this.ball.c = vectorMath.add(this.ball.c, required_movement)
+                    this.ball.v = vectorMath.scale(required_movement.noramlize(), gravitational_pull.y)
+                }
             }
         }
 
         canvas.clear()
-        this.draw_base()
-        this.draw_ball()
+        this.#draw_base()
+        this.#draw_ball()
 
-        // if (v <= 0) {
-        //     console.log("Log: stop pachinko.")
-        //     this.stop = true
-        // }
+        if (this.ball.c.y >= this.bottom_left.y - 20) {
+            console.log("Log: stop pachinko.")
+            this.stop = true
+
+            this.res = this.#get_result()
+
+            if (this.res === "double") {
+                this.#double_multipliers()
+                this.#start()
+            }
+            else setTimeout(this.#end, this.waiting_time.end * 10e2)
+        }
         if (!this.stop) {
             requestAnimationFrame(this.#update)
         }
+    }
+
+    #double_multipliers() {
+        this.multipliers.values.forEach((multiplier, idx) => {
+            this.multipliers.strings[idx] = multiplier != "double" ? `x${multiplier * 2}` : multiplier
+            this.multipliers.values[idx] = multiplier != "double" ? multiplier * 2 : multiplier
+        })
+    }
+
+    #get_result() {
+        let idx_res = Math.floor((this.ball.c.x - this.zone.splitters.w - this.bottom_left.x) / this.zone_dim)
+        return this.multipliers.values[idx_res]
+    }
+
+    #end = () => {
+        end(this.res, 1)
+        this.detach()
     }
 
     attach = () => {
@@ -642,7 +672,9 @@ class Pachinko {
             this.isAttached = true
 
             canvas.clear()
-            this.draw_base(true)
+            this.#draw_base(true)
+
+            setTimeout(this.#start, this.waiting_time.start * 10e2)
         }
     }
 
@@ -651,6 +683,9 @@ class Pachinko {
             console.log("Log: detaching pachinko.")
 
             this.isAttached = false
+            canvas.clear()
+            wheel.createSlices()
+            wheel.create_pointer()
         }
     }
 }
@@ -669,6 +704,6 @@ class CashHunt {
 
 export const bonus = {
     coin_flip: CoinFlip,
-    pachinko: new Pachinko(),
+    pachinko: Pachinko,
     cash_hunt: new CashHunt(),
 }
