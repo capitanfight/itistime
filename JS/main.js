@@ -76,7 +76,21 @@ const BONUS_SETTING = {
             end: 4, // s
         },
     },
-    cash_hunt: {},
+    cash_hunt: {
+        POSSIBLE_MULTIPLIER: {values: ["x5", "x7", "x10", "x15", "x20", "x50", "x75","x100"], percentages: [25, 20, 14, 12, 11, 10, 5, 3], length: undefined},
+        POSSIBLE_COVERS: ["apple", "hat"],
+        N_MULTIPLIER: {
+            r: 12,
+            c: 9,
+        },
+        PSEUDOWHEEL_T: 10, // s
+        PSEUDOWHEEL_G: 12, // spin
+
+        WAIT: {
+            start: 3, // s
+            end: 4, // s
+        },
+    },
     crazy_time: {
         PARTS_LOADOUT: ["x100", "x20", "x25", "x15", "double", "x25", "x35", "x25",
             "double", "x20", "x15", "x25", "x50", "x15", "x35", "x15", "double", "x25",
@@ -106,14 +120,8 @@ const BONUS_SETTING = {
 class App {
     constructor() {
         let start_player = new Player("Player1", START_AMMOUNT, "black", 0)
-        const { cash_hunt } = bonus
 
-        // pachinko.set(BONUS_SETTING.pachinko.LOADOUT, BONUS_SETTING.pachinko.POSSIBLE_MULTIPLIER, BONUS_SETTING.pachinko.SIZE, BONUS_SETTING.pachinko.COLORS, BONUS_SETTING.pachinko.ZONE, 
-        //     BONUS_SETTING.pachinko.OBSTACLES, BONUS_SETTING.pachinko.BALL, BONUS_SETTING.pachinko.GRID_SUBDIVISION, BONUS_SETTING.pachinko.RANDOMIZER)
-        // pachinko.attach()
-
-        // listener.set_listener({ name: "ArrowUp", func: pachinko.start })
-        // wheel.set(["pachinko", "pachinko", "pachinko"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
+        // wheel.set(["cashHunt", "cashHunt", "cashHunt"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
         better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
         setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
         leaderboard.set(start_player)

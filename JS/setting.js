@@ -48,6 +48,9 @@ class Settings {
     }
 
     open = () => {
+        this.html_elements.container.style.width = "75vw"
+        this.html_elements.container.style.height = "75vh"
+
         this.html_elements.popUp.classList.add("display")
         this.html_elements.popUp.classList.remove("hidden")
 
@@ -56,6 +59,9 @@ class Settings {
     }
 
     close = () => {
+        this.html_elements.container.style.width = "0px"
+        this.html_elements.container.style.height = "0px"
+
         this.html_elements.popUp.classList.add("hidden")
         this.html_elements.popUp.classList.remove("display")
 
@@ -63,9 +69,6 @@ class Settings {
         this.html_elements.btn.classList.remove("hidden")
     }
 }
-
-// let update_player
-// let removed_players = []
 
 class Setting {
     constructor(name, isOpener, html_element, id, players, start_ammount) {

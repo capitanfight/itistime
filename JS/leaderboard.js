@@ -97,7 +97,7 @@ class LeaderBoard {
 
         this.players = players
 
-        console.log(this.players)
+        // console.log(this.players)
     }
 
     update_player(player) {

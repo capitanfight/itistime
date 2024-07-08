@@ -333,7 +333,7 @@ class CoinFlip {
 
         console.log(`result -> ${COIN_COLORS[res]}`)
 
-        setInterval(() => {
+        setTimeout(() => {
             this.detach()
             end(res == 1 ? this.m1_res : this.m2_res, 0)
         }, this.wait.end * 10e2)
@@ -569,10 +569,10 @@ class Pachinko {
         const dY = (this.size.h - this.zone.size.h * 2) / this.obstacles.setting.vertical
 
         this.ball.c = new Vector({
-            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0)) * this.zone_dim + this.zone_dim / 2 + Number((Math.random() * (this.randomizer*2) - this.randomizer)),
+            x: this.top_left.x + Number((Math.random() * 8 + 3).toFixed(0)) * this.zone_dim + this.zone_dim / 2 + Number((Math.random() * (this.randomizer * 2) - this.randomizer)),
             y: this.top_left.y + dY / 2,
         })
-        this.ball.v = new Vector({x: 0, y: 0})
+        this.ball.v = new Vector({ x: 0, y: 0 })
 
         this.last_time = 0
 
@@ -690,20 +690,355 @@ class Pachinko {
     }
 }
 
+function get_elementIdx_by_id(elements, id, attribute_name) {
+    let idx = -1
+
+    elements.forEach((e, i) => {
+        if (e.getAttribute(attribute_name) == id) {
+            idx = i
+        }
+    })
+
+    return idx
+}
+
+let selected_player = 0, players = [], player_container = document.createElement("div")
+let multipliers = [], rows
+
+class PseudoWheel2 {
+    constructor(loadout, html_elements, time, giri, master, row, end_func) {
+        this.stop = true
+        this.loadout = loadout
+
+        this.t_tot = time
+        this.g_base = giri
+        this.end_func = end_func
+
+        let { e_class, n_displayedElements, element_size } = html_elements
+
+        this.displayed_elements = n_displayedElements
+        this.element_size = element_size
+
+        this.html_elements = {
+            container: document.createElement("div"),
+            elements: [],
+        }
+
+        this.html_elements.container.classList.add(e_class, "container", "pseudoWheel2")
+        this.html_elements.container.setAttribute("row", row)
+        this.html_elements.container.style.width = `${n_displayedElements * element_size.w}px`
+        this.html_elements.container.style.height = `${element_size.h}px`
+        this.html_elements.container.style.top = `${row * element_size.h}px`
+
+        for (let i = 0; i < loadout.strings.length; i++) {
+            let e = document.createElement("button")
+
+            e.classList.add("element", "pseudoWheel2", e_class)
+
+            e.textContent = loadout.strings[i]
+
+            e.style.left = `${i * element_size.w}px`
+
+            e.style.width = `${element_size.w}px`
+            e.style.height = `${element_size.h}px`
+
+            e.setAttribute("row", row)
+            e.setAttribute("column", i)
+
+            e.setAttribute("cover", loadout.covers[i])
+            e.setAttribute("is_covered", 0)
+
+            e.onclick = this.uncover_fromCLick
+
+            this.html_elements.container.appendChild(e)
+            this.html_elements.elements.push(e)
+        }
+
+        master.appendChild(this.html_elements.container)
+    }
+
+    cover() {
+        this.html_elements.elements.forEach(e => {
+            e.setAttribute("is_covered", 1)
+            e.textContent = ''
+        })
+    }
+
+    #place() {
+        if (this.curr_element.pos <= -this.element_size.w) {
+            this.curr_element = this.succ_element[0]
+            this.succ_element.push({
+                e: this.html_elements.elements[this.n % this.html_elements.elements.length],
+                pos: this.element_size.w * this.displayed_elements,
+                pos_ini: this.curr_element.pos_ini + this.element_size.w * this.displayed_elements,
+            })
+            this.succ_element.splice(0, 1)
+
+            this.n++
+        }
+
+        this.curr_element.pos = -(this.d_mov - this.curr_element.pos_ini)
+
+        this.succ_element.forEach((e, idx) => {
+            e.pos = this.curr_element.pos + this.element_size.w * (idx + 1)
+        })
+
+        this.curr_element.e.style.left = `${this.curr_element.pos}px`
+        this.succ_element.forEach(e => {
+            e.e.style.left = `${e.pos}px`
+        })
+    }
+
+    spin = () => {
+        if (!this.stop) {
+            return
+        }
+        console.log("Log: start pseudo-wheel2 spin.")
+
+        this.cover()
+
+        this.stop = false
+        this.start_t = 0
+
+        this.curr_element = {
+            e: this.html_elements.elements[this.html_elements.elements.length - 1],
+            pos: -this.element_size.w,
+            pos_ini: -this.element_size.w,
+        }
+        this.succ_element = []
+        for (let i = 0; i < this.displayed_elements; i++) {
+            this.succ_element.push({
+                e: this.html_elements.elements[i],
+                pos: i * this.element_size.w,
+                pos_ini: i * this.element_size.w,
+            })
+        }
+
+        this.n = this.displayed_elements
+
+        this.pos_tot = this.g_base * this.loadout.strings.length + Math.round((Math.random() * this.loadout.strings.length))
+        this.g_tot = this.pos_tot / this.loadout.strings.length
+        this.v_ini = (this.pos_tot / this.t_tot) * 2
+        this.a = -(this.v_ini / this.t_tot)
+
+        this.#update()
+    }
+
+    uncover_fromCLick = e => {
+        if (selected_player == undefined) return
+        let res = this.uncover(e.target)
+        console.log(`result -> ${res}`)
+
+        let idx = get_elementIdx_by_id(players, selected_player, "n_player")
+
+        multipliers.push({value: Number(res.slice(1)), players: [Number(selected_player)]})
+
+        player_container.removeChild(players[idx])
+        players.splice(idx, 1)
+        selected_player = undefined
+
+        console.log(multipliers)
+
+        if (players.length == 0) {
+            document.body.removeChild(player_container)
+            setTimeout(this.end_func, 2000)
+        }
+    }
+
+    uncover(e) {
+        if (!Number(e.getAttribute("is_covered"))) return
+
+        let idx = Number(e.getAttribute("column"))
+        let res = this.loadout.strings[idx]
+
+        e.setAttribute("is_covered", 0)
+        e.textContent = res
+        
+        console.log("uncovering")
+
+        return res
+    }
+
+    uncover_all() {
+        this.html_elements.elements.forEach(e => {
+            this.uncover(e)
+        })
+    }
+
+    #update = (t) => {
+        if (t === undefined) {
+            this.firstFrame = true
+            t = 0
+        } else {
+            if (this.firstFrame) {
+                this.start_t = t * 10e-4
+                this.firstFrame = false
+            }
+            t = (t * 10e-4) - this.start_t
+        }
+
+        this.v = this.v_ini + this.a * t
+        this.d_mov = ((1 / 2) * this.a * Math.pow(t, 2) + this.v_ini * t) * this.element_size.w + 1
+
+        this.#place()
+
+        if (this.v <= 0) {
+            this.stop = true
+            console.log("Log: stop pseudo-wheel spin.")
+        }
+
+        if (!this.stop) {
+            requestAnimationFrame(this.#update)
+        }
+    }
+}
+
 class CashHunt {
-    constructor() { }
+    constructor() {
+        this.isAttached = false
 
-    set() { }
+        this.html_elements = {
+            container: document.createElement("div"),
+            content: undefined,
+        }
 
-    start() { }
+        this.html_elements.container.classList.add("container", "cashHunt")
 
-    attach() { }
+        player_container.classList.add("player_container", "cashHunt")
 
-    detach() { }
+        for (let i = 0; i < better.possible_bet[6].players.length; i++) {
+            let e = document.createElement("button")
+
+            e.classList.add("player",  "cashHunt")
+            e.style.backgroundColor = better.possible_bet[6].players[i].color
+
+            e.setAttribute("n_player", better.possible_bet[6].players[i].id)
+
+            e.onclick = this.select_player
+
+            player_container.appendChild(e)
+            players.push(e)
+        }
+    }
+
+    set(possible_multipliers, possible_covers, n_multiplier, giri, time, wait) {
+        let loadout = this.get_multipliers(possible_multipliers, n_multiplier)
+
+        this.multipliers = {
+            strings: loadout.strings,
+            values: loadout.values,
+            covers: this.get_multipliers_covers(possible_covers, n_multiplier),
+        }
+
+        rows = n_multiplier.r
+
+        this.time_to_spin = time
+
+        this.content = []
+        for (let i = 0; i < n_multiplier.r; i++) {
+            let multipliers = {
+                strings: this.multipliers.strings[i],
+                values: this.multipliers.values[i],
+                covers: this.multipliers.covers[i],
+            }
+
+            let element = new PseudoWheel2(multipliers, { n_displayedElements: n_multiplier.c, e_class: "cashHunt", element_size: { w: 60, h: 60 }, },
+                time, giri, this.html_elements.container, i, this.end)
+
+            this.content.push(element)
+        }
+
+        this.waiting_time = wait
+    }
+
+    get_multipliers(possible_multipliers, n_multiplier) {
+        let { values, percentages } = possible_multipliers
+
+        let mtx_str = []
+        let mtx_val = []
+        for (let k = 0; k < n_multiplier.r; k++) {
+            let arr = []
+            for (let j = 0; j < n_multiplier.c + 1; j++) {
+                let n = Math.random() * 100, t = 0
+
+                for (let i = 0; i < values.length; i++) {
+                    t += percentages[i]
+
+                    if (n <= t) {
+                        arr.push(values[i])
+                        break
+                    }
+                }
+            }
+            mtx_str.push(arr)
+            mtx_val.push(arr.map(e => Number(e.slice(1))))
+        }
+
+        return { strings: mtx_str, values: mtx_val }
+    }
+
+    select_player = (e) => {
+        selected_player = e.target.getAttribute("n_player")
+    }
+
+    get_multipliers_covers(possible_covers, n_multiplier) {
+        let mtx = []
+        for (let i = 0; i < n_multiplier.r; i++) {
+            let arr = []
+            for (let j = 0; j < n_multiplier.c + 1; j++) {
+                let idx = Math.floor(Math.random() * possible_covers.length)
+                arr.push(possible_covers[idx])
+            }
+            mtx.push(arr)
+        }
+        return mtx
+    }
+
+    #start = () => {
+        this.content.forEach(e => { e.spin() })
+        setTimeout(this.attach_selector, this.time_to_spin * 10e2)
+    }
+
+    attach_selector = () => {
+        if (players.length == 0) {
+            this.end()
+            return
+        }
+        console.log("Log: attachong selector.")
+        document.body.appendChild(player_container)
+    }
+
+    end = () => {
+        this.content.forEach(e => {
+            e.uncover_all()
+        })
+        setTimeout(this.detach, this.waiting_time.end * 10e2)
+        end(multipliers, 2)
+    }
+
+    attach = () => {
+        if (!this.isAttached) {
+            console.log("Log: attaching pachinko.")
+
+            this.isAttached = true
+            document.body.appendChild(this.html_elements.container)
+
+            setTimeout(this.#start, this.waiting_time.start * 10e2)
+        }
+    }
+
+    detach = () => {
+        if (this.isAttached) {
+            console.log("Log: detaching pachinko.")
+
+            this.isAttached = false
+            document.body.removeChild(this.html_elements.container)
+        }
+    }
 }
 
 export const bonus = {
     coin_flip: CoinFlip,
     pachinko: Pachinko,
-    cash_hunt: new CashHunt(),
+    cash_hunt: CashHunt,
 }

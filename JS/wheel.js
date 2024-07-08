@@ -6,7 +6,7 @@ import { bonus, end } from "./bonus.js"
 
 const listener = new Listener()
 const NAMES = new Map([["crazyTime", "crazy time"], ["coinFlip", "coin flip"], ["cashHunt", "cash hunt"], ["pachinko", "pachinko"]])
-const { coin_flip, pachinko } = bonus
+const { coin_flip, pachinko, cash_hunt } = bonus
 
 function collide(v, p1, p2) {
     if (p1.x <= v.x && v.x <= p2.x &&
@@ -261,7 +261,14 @@ class MainWheel extends Wheel {
 
                             break
 
-                        case "cashHun":
+                        case "cashHunt":
+                            bonus = new cash_hunt()
+                            setTimeout(() => {
+                                let { POSSIBLE_MULTIPLIER, POSSIBLE_COVERS, N_MULTIPLIER, PSEUDOWHEEL_G, PSEUDOWHEEL_T, WAIT } = this.bonus_setting.cash_hunt
+
+                                bonus.set(POSSIBLE_MULTIPLIER, POSSIBLE_COVERS, N_MULTIPLIER, PSEUDOWHEEL_G, PSEUDOWHEEL_T, WAIT)
+                                bonus.attach()
+                            }, this.bonus_setting.waiting_time * 10e2)
 
                             break
 
