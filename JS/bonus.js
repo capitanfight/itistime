@@ -702,7 +702,7 @@ function get_elementIdx_by_id(elements, id, attribute_name) {
     return idx
 }
 
-let selected_player = 0, players = [], player_container = document.createElement("div")
+let selected_player, players = [], player_container = document.createElement("div")
 let multipliers = [], rows
 
 class PseudoWheel2 {

@@ -1,5 +1,6 @@
 import { leaderboard } from "./leaderboard.js"
 import { listener } from "./utils/listener.js"
+import { wheel } from "./wheel.js" 
 
 let betting_player
 
@@ -195,7 +196,7 @@ class Bet {
     }
 
     bet() {
-        if (betting_player.ammount === 0) {
+        if (betting_player.ammount === 0 || wheel.blockSpin) {
             return
         }
 
