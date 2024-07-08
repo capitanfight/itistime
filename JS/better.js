@@ -43,7 +43,7 @@ class Better {
 
         this.html_elements.fish_selector.container.classList.add("container", "better", "fishes")
         this.html_elements.fish_selector.btn.classList.add("better", "fishes")
-        this.html_elements.fish_selector.popUp.classList.add("popUp", "better", "fishes", "hidden")
+        this.html_elements.fish_selector.popUp.classList.add("better", "fishes", "hidden")
 
         this.html_elements.bets.forEach((e, idx) => {
             e.classList.add("better", "bet")
@@ -170,7 +170,7 @@ class Bet {
         this.html_element = document.createElement("button")
         this.html_element.classList.add("better", "bet")
         this.html_element.style.backgroundColor = color
-        this.html_element.dataset.betting_players = ""
+        // this.html_element.dataset.betting_players = ""
         this.html_element.style.gridColumn = `${pos.c}`
         this.html_element.style.gridRow = `${pos.r}`
 
@@ -212,10 +212,10 @@ class Bet {
 
 
             this.add_fish()
-
+            
             // conntrollare se usato
-            let old_data = this.html_element.dataset.betting_players
-            this.html_element.dataset.betting_players = old_data + " " + betting_player
+            // let old_data = this.html_element.dataset.betting_players
+            // this.html_element.dataset.betting_players = old_data + " " + betting_player
         } else {
             let idx = this.players.indexOf(betting_player)
 

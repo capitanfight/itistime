@@ -12,7 +12,7 @@ import { listener } from "./utils/listener.js"
 // parts setting
 const PARTS = new Map([["1", 21], ["2", 13], ["5", 7], ["10", 4], ["crazyTime", 1], ["coinFlip", 4], ["cashHunt", 2], ["pachinko", 2]])
 const PARTS_LOADOUT = ["crazyTime", "1", "2", "5", "1", "2", "pachinko", "1", "5", "1", "2", "1", "coinFlip", "1", "2", "1", "10", "2", "cashHunt", "1", "2", "1", "5", "1", "coinFlip", "1", "5", "2", "10", "1", "pachinko", "1", "2", "5", "1", "2", "coinFlip", "1", "10", "1", "5", "1", "cashHunt", "1", "2", "5", "1", "2", "coinFlip", "2", "1", "10", "2", "1"]
-const COLORS = new Map([["1", "lightblue"], ["2", "yellow"], ["5", "pink"], ["10", "black"], ["crazyTime", "red"], ["coinFlip", "blue"], ["cashHunt", "green"], ["pachinko", "purple"]])
+const COLORS = new Map([["1", "#00a3d4"], ["2", "#d69e02"], ["5", "#d47dca"], ["10", "#5811c2"], ["crazyTime", "#d6040b"], ["coinFlip", "#1103a3"], ["cashHunt", "#156315"], ["pachinko", "#9e40c9"]])
 const POSSIBLE_BET = ["1", "2", "5", "10", "coinFlip", "pachinko", "cashHunt", "crazyTime"]
 const VALUES = new Map([["1", 1], ["2", 2], ["5", 5], ["10", 10], ["crazyTime", -1], ["coinFlip", -1], ["cashHunt", -1], ["pachinko", -1]])
 const MAXES = new Map([["1", 100], ["2", 100], ["5", 100], ["10", 100], ["crazyTime", 100], ["coinFlip", 100], ["cashHunt", 100], ["pachinko", 100]])
@@ -37,7 +37,7 @@ const START_AMMOUNT = 100 // $
 // bonus
 const BONUS_SETTING = {
     coin_flip: {
-        COIN_FLIP_MULTIPLIER: { value: [2, 5, 10], percentage: [50, 30, 20] },
+        COIN_FLIP_MULTIPLIER: { value: [2, 5, 10, 20, 50, 100], percentage: [30, 21, 19, 13, 10, 7] },
         PSEUDOWHEEL_T: 10, // s
         PSEUDOWHEEL_G: 12, // spin
         COIN_T: 10, // s
@@ -48,10 +48,10 @@ const BONUS_SETTING = {
         },
     },
     pachinko: {
-        // POSSIBLE_MULTIPLIER: {values: ["x5", "x7", "x10", "x15", "double", "x20", "x50", "x100"], percentages: [22, 18, 14, 12, 11, 10, 8, 5], length: 15},
-        LOADOUT: ["x5", "x7", "x10", "x15", "x20", "double", "x50", "x100", "x50", "double", "x20", "x15", "x10", "x7", "x5"],
+        POSSIBLE_MULTIPLIER: {values: ["x5", "x7", "x10", "x15", "double", "x20", "x50", "x100"], percentages: [22, 18, 14, 12, 11, 10, 8, 5], length: 15},
+        // LOADOUT: ["x5", "x7", "x10", "x15", "x20", "double", "x50", "x100", "x50", "double", "x20", "x15", "x10", "x7", "x5"],
         SIZE: { width: 600, height: -1 }, // px
-        COLORS: { background: "purple", splitter: "gold", text: "white" },
+        COLORS: { background: "#9607ba", splitter: "gold", text: "white" },
         ZONE: { height: 50, width: -1, splitter: { height: -1, width: 3 } }, // px
         OBSTACLES: {
             horizontal: {
@@ -60,7 +60,7 @@ const BONUS_SETTING = {
             },
             vertical: 10,
             size: 4, // px(radius)
-            color: "red", // px
+            color: "#dbb32e", // px
         },
         BALL: {
             color: "white",
@@ -78,7 +78,7 @@ const BONUS_SETTING = {
     },
     cash_hunt: {
         POSSIBLE_MULTIPLIER: {values: ["x5", "x7", "x10", "x15", "x20", "x50", "x75","x100"], percentages: [25, 20, 14, 12, 11, 10, 5, 3], length: undefined},
-        POSSIBLE_COVERS: ["apple", "hat"],
+        POSSIBLE_COVERS: ["apple", "hat", "iceCream", "rabbit", "cactus", "present", "target", "star"],
         N_MULTIPLIER: {
             r: 12,
             c: 9,
@@ -102,14 +102,14 @@ const BONUS_SETTING = {
         ],
         PARTS: null,
         RADIUS: 350,
-        COLORS: new Map([["x100", "pink"], ["x50", "lightblue"], ["x35", "darkgreen"], ["x25", "orange"], ["x20", "red"], ["x15", "purple"], ["double", "grey"]]),
+        COLORS: new Map([["x100", "pink"], ["x50", "#00a3d4"], ["x35", "darkgreen"], ["x25", "orange"], ["x20", "red"], ["x15", "purple"], ["double", "grey"]]),
         T_SPIN: 10,
         SPEED: { min: 65.345, max: 115.611 },
-        POINTER_COLORS: ["green", "blue", "yellow"],
+        POINTER_COLORS: ["green", "blue", "#d1bd04"],
         SIZE_POINTER: 25,
         D_ANG: Math.PI / 6,
         WAIT: {
-            start: 10, // s
+            start: 3, // s
             end: 4, // s
         },
     },

@@ -28,6 +28,19 @@ input[type="button"] {
     border: 0px;
 }
 
+button.close,
+input[type="button"].close {
+    background-image: url(../assets/close_btn_2.0.svg);
+    background-color: rgb(19, 18, 18);
+    border-radius: 50%;
+    box-shadow: 5px 5px 10px black;
+}
+
+button:hover,
+input[type="button"]:hover {
+    cursor: pointer;
+}
+
 canvas#mainWheel {
     position: absolute;
 
@@ -53,8 +66,12 @@ canvas#mainWheel {
     width: 100px;
     height: 100px;
 
-    background-color: black;
+    background-color: rgb(3, 3, 3);
+    background-image: url(../assets/fish_icon.svg);
     position: absolute;
+
+    border-radius: 50%;
+    box-shadow: 5px 5px 3px black;
 
     bottom: 30px;
     left: 30px;
@@ -70,7 +87,9 @@ canvas#mainWheel {
     height: 100%;
     width: 100%;
 
-    background-color: red;
+    box-shadow: 7px 0px 10px black;
+
+    background-color: rgb(29, 28, 28);
     position: absolute;
 
     grid-template-columns: 2vw 1fr 2vw 1fr 2vw;
@@ -94,17 +113,29 @@ canvas#mainWheel {
     z-index: 12;
 }
 
+.popUp.better button.better.bet:hover::before {
+    position: absolute;
+    height: 40px;
+    width: 170px;
+
+    bottom: 10px;
+    left: 20px;
+
+    background-color: white;
+
+    content: "right-click: remove fish left-click: add fish";
+    font-size: 1rem;
+}
+
 .popUp.better button.better.bet {
-    border: 3px solid #ffd700;
+    border: 5px solid #ffd700;
 
     border-radius: 5%;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* display: grid; */
-    /* grid-template-columns: min-content; */
-    /* grid-template-rows: max-content; */
+    overflow-y: auto;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 50px));
 
     z-index: 6;
 }
@@ -119,8 +150,8 @@ canvas#mainWheel {
     justify-content: center;
     align-items: center;
 
-    width: 40px;
-    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
 
     margin: 0px 5px 0px 5px;
 
@@ -142,6 +173,9 @@ canvas#mainWheel {
     height: 50px;
     width: 50px;
 
+    background-color: #141414;
+    box-shadow: 5px 5px 10px black;
+
     position: absolute;
     top: 20px;
     left: calc(50% - 25px);
@@ -149,7 +183,7 @@ canvas#mainWheel {
     z-index: 7;
 }
 
-.container.better.fishes .popUp.better.fishes.display {
+.container.better.fishes div.better.fishes.display {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -157,13 +191,18 @@ canvas#mainWheel {
     z-index: 7;
 }
 
-.container.better.fishes .popUp.better.fishes {
+.container.better.fishes div.better.fishes {
+    overflow-x: auto;
+
     height: 100px;
-    width: 60%;
+    width: 300px;
+
+    border-radius: 20px;
+    box-shadow: 5px 5px 10px rgb(97, 95, 95);
 
     position: absolute;
     bottom: 0px;
-    left: 20%;
+    left: 23%;
 
     background-color: white;
 
@@ -189,9 +228,12 @@ canvas#mainWheel {
     width: 100px;
     height: 100px;
 
-    background-color: black;
+    background-color: rgb(3, 3, 3);
+    background-image: url(../assets/settings_icon_2.0.svg);
     position: absolute;
 
+    border-radius: 50%;
+    box-shadow: 5px 5px 5px black;
 
     bottom: 30px;
     right: 30px;
@@ -207,10 +249,16 @@ canvas#mainWheel {
     height: 50vh;
     width: 50vw;
 
-    background-color: gray;
+    background-color: rgb(15, 14, 14);
+
+    border-radius: 20px;
+    box-shadow: 10px 10px 20px black, -10px -10px 20px black;
 
     top: 0px;
     bottom: 0px;
+
+    justify-content: center;
+    align-items: center;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -229,12 +277,32 @@ canvas#mainWheel {
     top: 20px;
 }
 
-.popUp.settings div.setting>button.setting {
-    height: 30px;
-    padding-left: 5px;
-    padding-right: 5px;
+.popUp.settings div.setting>button.setting:hover::before {
+    height: 20px;
+    width: 120px;
 
-    background-color: red;
+    padding: 3px;
+
+    background-color: white;
+
+    position: absolute;
+    top: 40%;
+    left: 28%;
+
+    border-radius: 10px;
+
+    content: "Player settings";
+    font-size: 1rem;
+}
+
+.popUp.settings div.setting>button.setting {
+    width: 70px;
+    height: 70px;
+
+    background-image: url(../assets/player_icon.svg);
+
+    background-color: white;
+    border-radius: 20px;
 }
 
 .popUp.settings div.setting form.setting.display {
@@ -254,7 +322,8 @@ canvas#mainWheel {
     justify-content: right;
     align-items: flex-start;
 
-    background-color: black;
+    background-color: #141414;
+    border-radius: 20px;
 
     padding-left: 5px;
     padding-top: 5px;
@@ -266,8 +335,8 @@ canvas#mainWheel {
 
 .popUp.settings div.setting form.setting>input.close {
     position: absolute;
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
 
     top: 10px;
     right: 10px;
@@ -276,8 +345,9 @@ canvas#mainWheel {
 .popUp.settings div.setting form.setting>input.add {
     position: absolute;
 
-    background-color: green;
-    border: 0;
+    background-color: rgb(0, 54, 0);
+    background-image: url(../assets/puls_sign.svg);
+    border-radius: 5px;
 
     height: 30px;
     width: 30px;
@@ -289,13 +359,14 @@ canvas#mainWheel {
 .popUp.settings div.setting form.setting div.player.setting {
     display: flex;
 
-    width: 40vw;
+    width: 45vw;
     height: fit-content;
 
     justify-self: center;
     align-items: center;
 
     padding-top: 10px;
+    padding-left: 10px;
 }
 
 .popUp.settings div.setting form.setting div.player.setting input.setting.player.color:hover {
@@ -306,15 +377,20 @@ canvas#mainWheel {
     width: 150px;
     height: 25px;
     margin-left: 5px;
+
+    font-size: 1rem;
 }
 
 .popUp.settings div.setting form.setting div.player.setting input.setting.player.remove {
     width: 30px;
     height: 30px;
 
-    background-color: red;
+    background-color: rgb(114, 0, 0);
+    background-image: url(../assets/minus_sign.svg);
 
-    margin-left: calc(40vw - 150px - 50px - 35px);
+    border-radius: 50%;
+
+    margin-left: calc(40vw - 150px - 50px - 35px - 10px);
 }
 
 .container.leaderboard {
@@ -323,7 +399,7 @@ canvas#mainWheel {
     width: 300px;
     height: fit-content;
 
-    background-color: black;
+    background-color: #070707;
 
     top: 0px;
     right: 0px;
@@ -336,11 +412,23 @@ canvas#mainWheel {
     z-index: 3;
 }
 
+.container.leaderboard button.player.leaderboard:hover::before {
+    position: absolute;
+    left: -160px;
+
+    background-color: white;
+
+    content: "click to select player";
+    padding: 3px;
+    font-size: 1rem;
+}
+
 .container.leaderboard button.player.leaderboard {
     width: 100%;
     height: 30px;
 
     margin-top: 5px;
+    border-radius: 5px;
 
     display: flex;
     justify-content: flex-start;
@@ -356,10 +444,14 @@ canvas#mainWheel {
     width: 70px;
 
     margin-left: 10px;
+    font-size: 1rem;
+
+    overflow: hidden;
 }
 
 .container.leaderboard button.player.leaderboard p.player.leaderboard.ammount {
     margin-left: calc(300px - 70px - 10px - 30px - 50px);
+    overflow: hidden;
 }
 
 body>.container.coinFlip {
@@ -440,6 +532,25 @@ body>.container.coinFlip {
     position: absolute;
 }
 
+.container.crazyTime:hover::after {
+    position: absolute;
+
+    right: -280px;
+
+    width: 240px;
+    height: 40px;
+    padding: 5px;
+    padding-left: 15px;
+
+    border-radius: 20px;
+
+    background-color: white;
+
+    content: "Selecte a player from the left left box than click on one button";
+    font-size: 1rem;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .container.crazyTime {
     display: flex;
     align-items: center;
@@ -449,6 +560,9 @@ body>.container.coinFlip {
     height: 100px;
 
     background-color: white;
+    border-radius: 15px;
+
+    box-shadow: 5px 5px 5px rgb(5, 5, 5), -5px 5px 5px rgb(5, 5, 5);
 
     z-index: 6;
 
@@ -460,6 +574,9 @@ body>.container.coinFlip {
 .element.crazyTime {
     width: 80px;
     height: 80px;
+
+    border-radius: 15px;
+
 
     margin: 0px 10px 0px 10px;
 }
@@ -476,7 +593,11 @@ body>.container.coinFlip {
 
     display: grid;
 
-    background-color: white;
+    grid-template-columns: repeat(auto-fit, 50px);
+    background-color: rgb(61, 61, 61);
+
+    border-radius: 20px;
+    box-shadow: 5px 5px 10px black;
 
     z-index: 6;
 }
@@ -484,6 +605,10 @@ body>.container.coinFlip {
 .player.crazyTime {
     width: 30px;
     height: 30px;
+
+    border-radius: 5px;
+
+    background-image: url(../assets/player_icon.svg);
 }
 
 body>.container.cashHunt {
@@ -516,15 +641,47 @@ body>.container.cashHunt {
     justify-content: center;
 
     position: absolute;
+
+    background-color: #1a5434;
+    color: #ffd700;
+
+    font-size: 1rem;
+    font-family: fantasy;
+    border-bottom: 1px solid gray;
+    border-top: 1px solid gray;
 }
 
 .element.pseudoWheel2[is_covered="1"][cover="apple"] {
     content: "";
-    background-color: red;
+    background-image: url(../assets/apple.svg);
 }
 .element.pseudoWheel2[is_covered="1"][cover="hat"] {
     content: "";
-    background-color: darkgray;
+    background-image: url(../assets/hat.svg);
+}
+.element.pseudoWheel2[is_covered="1"][cover="iceCream"] {
+    content: "";
+    background-image: url(../assets/iceCream.svg);
+}
+.element.pseudoWheel2[is_covered="1"][cover="rabbit"] {
+    content: "";
+    background-image: url(../assets/rabbit.svg);
+}
+.element.pseudoWheel2[is_covered="1"][cover="cactus"] {
+    content: "";
+    background-image: url(../assets/cactus.svg);
+}
+.element.pseudoWheel2[is_covered="1"][cover="present"] {
+    content: "";
+    background-image: url(../assets/present.svg);
+}
+.element.pseudoWheel2[is_covered="1"][cover="target"] {
+    content: "";
+    background-image: url(../assets/target.svg);
+}
+.element.pseudoWheel2[is_covered="1"][cover="star"] {
+    content: "";
+    background-image: url(../assets/star.svg);
 }
 
 .player_container.cashHunt {
@@ -537,7 +694,12 @@ body>.container.cashHunt {
     width: 50vw;
     height: 150px;
 
-    display: grid;
+    display: grid;    
+    grid-template-columns: repeat(auto-fit, minmax(50px, 50px));
+
+    border-radius: 10px;
+
+    box-shadow: 5px 5px 10px black, -5px 5px 10px black;
 
     background-color: white;
 
@@ -547,4 +709,7 @@ body>.container.cashHunt {
 .player.cashHunt {
     width: 30px;
     height: 30px;
+
+    border-radius: 5px;
+    background-image: url(../assets/player_icon.svg);
 }

@@ -115,7 +115,7 @@ class Setting {
 
         this.html_elements.content[idx].name.setAttribute("type", "text")
         this.html_elements.content[idx].name.setAttribute("id", `${idx + 1}`)
-        this.html_elements.content[idx].name.setAttribute("placeholder", `player${idx + 1}`)
+        this.html_elements.content[idx].name.setAttribute("placeholder", `Player${idx + 1}`)
 
         this.html_elements.content[idx].color.setAttribute("type", "color")
         this.html_elements.content[idx].color.setAttribute("value", `#${Math.floor(Math.random()*16777215).toString(16)}`)
@@ -130,7 +130,7 @@ class Setting {
         this.html_elements.content[idx].container.appendChild(this.html_elements.content[idx].remove)
         this.html_elements.popUp.appendChild(this.html_elements.content[idx].container)
 
-        this.players.push(new Player(`player${idx + 1}`, this.start_ammount, "black", this.html_elements.content.length - 1))
+        this.players.push(new Player(`Player${idx + 1}`, this.start_ammount, "black", this.html_elements.content.length - 1))
     }
 
     remove_field = (e) => {

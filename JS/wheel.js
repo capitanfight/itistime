@@ -77,7 +77,7 @@ export class Wheel {
     }
 
     create_pointer() {
-        canvas.draw_triangle("lightgreen", this.pointer.p1, this.pointer.p2, this.pointer.p3)
+        canvas.draw_triangle("#cde03d", this.pointer.p1, this.pointer.p2, this.pointer.p3)
     }
 
     createSlices() {
@@ -301,7 +301,7 @@ class MainWheel extends Wheel {
         this.blockSpin = false
 
         let winner = this.slices_loadout[this.winner]
-        console.log(winner)
+        // console.log(winner)
 
         better.pay_bet(winner)
     }
@@ -471,6 +471,7 @@ class CrazyTime extends Wheel {
         let bonus_values = [undefined, undefined, undefined]
         let changePointer = { change: false, p: [] }
         this.blockSpin = false
+        let isReadyToSpin = false
 
         this.slices_array.forEach((slice, id) => {
             this.pointer.forEach((pointer, idx) => {
@@ -490,6 +491,7 @@ class CrazyTime extends Wheel {
         })
 
         if (changePointer.change) {
+            isReadyToSpin = true
             this.pointer = changePointer.p
             this.slices_array.forEach(slice => {
                 if (slice.isBonus) return
@@ -528,11 +530,14 @@ class CrazyTime extends Wheel {
             if (b.value == undefined) canEnd = false
         })
 
-        if (canEnd) {
+        if (canEnd || !isReadyToSpin) {
+        // if (false) {
             setTimeout(() => {
                 this.detach()
                 end(this.bonus, 3)
             }, this.wait.end * 10e2)
+        } else {
+            throw new Error("Somthing is gone wrong")
         }
     }
 
