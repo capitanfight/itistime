@@ -121,11 +121,11 @@ class App {
     constructor() {
         let start_player = new Player("Player1", START_AMMOUNT, "black", 0)
 
-        // wheel.set(["cashHunt", "cashHunt", "cashHunt"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
+        wheel.set(["cashHunt", "crazyTime", "coinFlip", "pachinko","cashHunt", "crazyTime", "coinFlip", "pachinko","cashHunt", "crazyTime", "coinFlip", "pachinko"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
         better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
         setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
         leaderboard.set(start_player)
-        wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
+        // wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
     }
 
     start() {
