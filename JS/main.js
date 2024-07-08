@@ -15,7 +15,7 @@ const PARTS_LOADOUT = ["crazyTime", "1", "2", "5", "1", "2", "pachinko", "1", "5
 const COLORS = new Map([["1", "#00a3d4"], ["2", "#d69e02"], ["5", "#d47dca"], ["10", "#5811c2"], ["crazyTime", "#d6040b"], ["coinFlip", "#1103a3"], ["cashHunt", "#156315"], ["pachinko", "#9e40c9"]])
 const POSSIBLE_BET = ["1", "2", "5", "10", "coinFlip", "pachinko", "cashHunt", "crazyTime"]
 const VALUES = new Map([["1", 1], ["2", 2], ["5", 5], ["10", 10], ["crazyTime", -1], ["coinFlip", -1], ["cashHunt", -1], ["pachinko", -1]])
-const MAXES = new Map([["1", 100], ["2", 100], ["5", 100], ["10", 100], ["crazyTime", 100], ["coinFlip", 100], ["cashHunt", 100], ["pachinko", 100]])
+const MAXES = new Map([["1", 1000], ["2", 1000], ["5", 750], ["10", 500], ["crazyTime", 100], ["coinFlip", 250], ["cashHunt", 200], ["pachinko", 200]])
 
 // wheel settings
 const RADIUS = 350 // px
@@ -32,7 +32,7 @@ const FISHES_AMMOUNT = [1, 5, 25, 100, 500, 1000]
 // settings
 const SETTINGS_NAMES = ["Player settings"]
 const SETTINGS_TYPE = new Map([["Player settings", true]])
-const START_AMMOUNT = 100 // $
+const START_AMMOUNT = 10000 // $
 
 // bonus
 const BONUS_SETTING = {
