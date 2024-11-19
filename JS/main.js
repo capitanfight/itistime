@@ -19,7 +19,7 @@ const MAXES = new Map([["1", 1000], ["2", 1000], ["5", 750], ["10", 500], ["craz
 
 // wheel settings
 const RADIUS = 350 // px
-const T_SPIN = 10 // s
+const T_SPIN = 6 // s
 const VEL = {
     min: 65.345,
     max: 115.611
@@ -121,11 +121,11 @@ class App {
     constructor() {
         let start_player = new Player("Player1", START_AMMOUNT, "black", 0)
 
-        wheel.set(["cashHunt", "pachinko", "coin_flip", "crazy_time"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
+        // wheel.set(["cashHunt", "pachinko", "coin_flip", "crazy_time"], PARTS, RADIUS, COLORS, 2, VEL, 100, BONUS_SETTING)
         better.set(POSSIBLE_BET, VALUES, COLORS, MAXES, FISHES_AMMOUNT, start_player)
         setting.set(SETTINGS_NAMES, SETTINGS_TYPE, START_AMMOUNT, start_player)
         leaderboard.set(start_player)
-        // wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
+        wheel.set(PARTS_LOADOUT, PARTS, RADIUS, COLORS, T_SPIN, VEL, SIZE_POINTER, BONUS_SETTING)
     }
 
     start() {
