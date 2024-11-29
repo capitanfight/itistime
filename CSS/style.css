@@ -713,3 +713,11 @@ body>.container.cashHunt {
     border-radius: 5px;
     background-image: url(../assets/player_icon.svg);
 }
+
+body > img {
+    position: absolute;
+    z-index: 1;
+
+    user-select: none;
+    pointer-events: none;
+}

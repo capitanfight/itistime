@@ -92,9 +92,9 @@ export class Wheel {
             this.slices_array[i].createSlice(this.c, this.radius, this.movedAngle)
         }
 
-        canvas.draw_circle(this.c, this.radius / 5, "red", true, "gold", 10)
-        canvas.draw_text({ x: this.c.x, y: this.c.y - 20 }, "yellow", "Crazy", 0, "center", 20)
-        canvas.draw_text({ x: this.c.x, y: this.c.y + 20 }, "yellow", "Time!", 0, "center", 20)
+        canvas.draw_circle(this.c, this.radius / 5, "#ad79ed", true, "gold", 10)
+        // canvas.draw_text({ x: this.c.x, y: this.c.y - 20 }, "yellow", "Crazy", 0, "center", 20)
+        // canvas.draw_text({ x: this.c.x, y: this.c.y + 20 }, "yellow", "Time!", 0, "center", 20)
     }
 
     stop_spin = () => {
