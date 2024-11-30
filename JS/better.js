@@ -49,6 +49,7 @@ class Better {
         this.html_elements.bets.forEach((e, idx) => {
             e.classList.add("better", "bet")
             e.onmousedown = this.possible_bet[idx].manage_bet
+            e.oncontextmenu = e => { return false }
 
             this.html_elements.popUp.appendChild(e)
         })
